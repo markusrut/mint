@@ -7,13 +7,6 @@ type Token struct {
 	Literal string
 }
 
-func NewToken(tokenType TokenType, char rune) Token {
-	return Token{
-		Type:    tokenType,
-		Literal: string(char),
-	}
-}
-
 const (
 	ILLEGAL = "ILLEGAL"
 	EOF     = "EOF"
@@ -36,6 +29,18 @@ const (
 	RBRACE = "}"
 
 	// Keywords
-	FUNCTION = "FUNCTION"
+	FUNCTION = "FN"
 	LET      = "LET"
 )
+
+var keywords = map[string]TokenType{
+	"fn":  FUNCTION,
+	"let": LET,
+}
+
+func LookupIdentifier(identifier string) TokenType {
+	if token, ok := keywords[identifier]; ok {
+		return token
+	}
+	return IDENTIFIER
+}
