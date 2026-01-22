@@ -66,13 +66,9 @@ func (lexer *Lexer) NextToken() token.Token {
 		tok.Type = token.EOF
 	default:
 		if isLetter(lexer.char) {
-			tok.Literal = lexer.readIdentifier()
-			tok.Type = token.LookupIdentifier(tok.Literal)
-			return tok
+			return lexer.makeIdentifierToken()
 		} else if isNumber(lexer.char) {
-			tok.Literal = lexer.readNumber()
-			tok.Type = token.INT
-			return tok
+			return lexer.makeNumberToken()
 		} else {
 			tok = lexer.makeToken(token.ILLEGAL)
 		}
@@ -95,6 +91,22 @@ func (lexer *Lexer) makeTwoCharToken(tokenType token.TokenType) token.Token {
 	return token.Token{
 		Type:    tokenType,
 		Literal: string(char) + string(lexer.char),
+	}
+}
+
+func (lexer *Lexer) makeIdentifierToken() token.Token {
+	identifier := lexer.readIdentifier()
+	return token.Token{
+		Type:    token.LookupIdentifier(identifier),
+		Literal: identifier,
+	}
+}
+
+func (lexer *Lexer) makeNumberToken() token.Token {
+	number := lexer.readNumber()
+	return token.Token{
+		Type:    token.INT,
+		Literal: number,
 	}
 }
 
