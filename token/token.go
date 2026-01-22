@@ -24,8 +24,10 @@ const (
 	BANG     = "!"
 
 	// Comparator
-	LESS    = "<"
-	GREATER = ">"
+	LESS       = "<"
+	GREATER    = ">"
+	EQUALS     = "=="
+	NOT_EQUALS = "!="
 
 	// Delimiters
 	COMMA     = ","

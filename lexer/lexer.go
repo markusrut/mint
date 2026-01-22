@@ -26,33 +26,41 @@ func (lexer *Lexer) NextToken() token.Token {
 
 	switch lexer.char {
 	case '=':
-		tok = newToken(token.ASSIGN, lexer.char)
+		if lexer.peekChar() == '=' {
+			tok = lexer.makeTwoCharToken(token.EQUALS)
+		} else {
+			tok = lexer.makeToken(token.ASSIGN)
+		}
 	case '+':
-		tok = newToken(token.PLUS, lexer.char)
+		tok = lexer.makeToken(token.PLUS)
 	case '-':
-		tok = newToken(token.MINUS, lexer.char)
+		tok = lexer.makeToken(token.MINUS)
 	case '/':
-		tok = newToken(token.SLASH, lexer.char)
+		tok = lexer.makeToken(token.SLASH)
 	case '*':
-		tok = newToken(token.ASTERISK, lexer.char)
+		tok = lexer.makeToken(token.ASTERISK)
 	case '!':
-		tok = newToken(token.BANG, lexer.char)
+		if lexer.peekChar() == '=' {
+			tok = lexer.makeTwoCharToken(token.NOT_EQUALS)
+		} else {
+			tok = lexer.makeToken(token.BANG)
+		}
 	case '<':
-		tok = newToken(token.LESS, lexer.char)
+		tok = lexer.makeToken(token.LESS)
 	case '>':
-		tok = newToken(token.GREATER, lexer.char)
+		tok = lexer.makeToken(token.GREATER)
 	case ',':
-		tok = newToken(token.COMMA, lexer.char)
+		tok = lexer.makeToken(token.COMMA)
 	case ';':
-		tok = newToken(token.SEMICOLON, lexer.char)
+		tok = lexer.makeToken(token.SEMICOLON)
 	case '(':
-		tok = newToken(token.LPAREN, lexer.char)
+		tok = lexer.makeToken(token.LPAREN)
 	case ')':
-		tok = newToken(token.RPAREN, lexer.char)
+		tok = lexer.makeToken(token.RPAREN)
 	case '{':
-		tok = newToken(token.LBRACE, lexer.char)
+		tok = lexer.makeToken(token.LBRACE)
 	case '}':
-		tok = newToken(token.RBRACE, lexer.char)
+		tok = lexer.makeToken(token.RBRACE)
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
@@ -66,7 +74,7 @@ func (lexer *Lexer) NextToken() token.Token {
 			tok.Type = token.INT
 			return tok
 		} else {
-			tok = newToken(token.ILLEGAL, lexer.char)
+			tok = lexer.makeToken(token.ILLEGAL)
 		}
 	}
 
@@ -74,22 +82,34 @@ func (lexer *Lexer) NextToken() token.Token {
 	return tok
 }
 
-func newToken(tokenType token.TokenType, char rune) token.Token {
+func (lexer *Lexer) makeToken(tokenType token.TokenType) token.Token {
 	return token.Token{
 		Type:    tokenType,
-		Literal: string(char),
+		Literal: string(lexer.char),
+	}
+}
+
+func (lexer *Lexer) makeTwoCharToken(tokenType token.TokenType) token.Token {
+	char := lexer.char
+	lexer.readChar()
+	return token.Token{
+		Type:    tokenType,
+		Literal: string(char) + string(lexer.char),
 	}
 }
 
 func (lexer *Lexer) readChar() {
-	if lexer.readPosition >= len(lexer.input) {
-		lexer.char = 0
-	} else {
-		lexer.char = []rune(lexer.input)[lexer.readPosition]
-	}
-
+	lexer.char = lexer.peekChar()
 	lexer.position = lexer.readPosition
 	lexer.readPosition += 1
+}
+
+func (lexer *Lexer) peekChar() rune {
+	if lexer.readPosition >= len(lexer.input) {
+		return 0
+	} else {
+		return []rune(lexer.input)[lexer.readPosition]
+	}
 }
 
 func (lexer *Lexer) readIdentifier() string {
